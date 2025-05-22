@@ -9,9 +9,15 @@ import {
   Link,
   useTheme,
 } from "@mui/material";
+import { useEffect } from "react";
+import { API_BASE_URL } from "../constants/api";
 
 const Dashboard = () => {
   const theme = useTheme();
+
+  useEffect(() => {
+    console.log(API_BASE_URL);
+  }, []);
 
   return (
     <Box sx={{ padding: 3 }}>
