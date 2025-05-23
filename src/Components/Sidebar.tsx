@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Drawer,
   List,
@@ -25,10 +26,13 @@ import {
   ReceiptLong,
   FactCheck,
 } from "@mui/icons-material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/store";
+import { logout } from "../redux/slices/authSlice";
 
 interface SidebarProps {
   open: boolean;
@@ -36,7 +40,7 @@ interface SidebarProps {
 }
 
 const listItems = [
-  { id: 1, title: "Dashboard", path: "/", icon: <Dashboard /> },
+  { id: 1, title: "Dashboard", path: "/dashboard", icon: <Dashboard /> },
   { id: 2, title: "Add Doctor", path: "/add-doctor", icon: <Medication /> },
   {
     id: 3,
@@ -67,6 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, toggleSidebar }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState(location.pathname);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCurrentPath(location.pathname);
@@ -90,6 +96,16 @@ const Sidebar: React.FC<SidebarProps> = ({ open, toggleSidebar }) => {
     borderTopLeftRadius: "15px",
     borderBottomLeftRadius: "15px",
   });
+
+  const handleLogout = () => {
+    try {
+      dispatch(logout());
+      localStorage.setItem("isLoggedIn", "false");
+      navigate("/");
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -119,6 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, toggleSidebar }) => {
 
       {/* Logout Button (Top-Right Corner) */}
       <Button
+        onClick={handleLogout}
         variant="contained"
         sx={(theme) => ({
           position: "fixed",
