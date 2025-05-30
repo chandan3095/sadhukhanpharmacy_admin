@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,54 +16,63 @@ import {
   TextField,
   InputAdornment,
   Button,
+  CircularProgress, // For loading state
+  Alert, // For error state
 } from "@mui/material";
 import { Edit, Delete, Search, Add } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-
-interface Doctor {
-  name: string;
-  speciality: string;
-  fromTime: string;
-  toTime: string;
-}
-
-const doctors: Doctor[] = [
-  {
-    name: "Dr. Debjyoti",
-    speciality: "Child Specialist",
-    fromTime: "10:00 AM",
-    toTime: "02:00 PM",
-  },
-  {
-    name: "Dr. Amit Kumar",
-    speciality: "Cardiologist",
-    fromTime: "03:00 PM",
-    toTime: "06:00 PM",
-  },
-  {
-    name: "Dr. Sunita Sharma",
-    speciality: "Dermatologist",
-    fromTime: "09:00 AM",
-    toTime: "01:00 PM",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { fetchDoctors } from "../redux/slices/DoctorSlices/doctorSlice";
+import { Doctor } from "../interfaces/DoctorInterface"; // Ensure this path is correct
 
 const DoctorList: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleEdit = (index: number) => {
-    console.log(`Edit doctor at index ${index}`);
+  // Destructure doctors, status, and error from the Redux store
+  // 'doctors' here will be the object: { data: Doctor[] }
+  const { doctors, status, error } = useSelector(
+    (state: RootState) => state.doctorSlice
+  );
+
+  // Keep these logs; they are valuable for understanding the state at render
+  console.log("Doctors data from Redux:", doctors);
+  console.log("Redux status:", status);
+
+  useEffect(() => {
+    if (status === "idle") {
+      console.log("Status is idle. Dispatching fetchDoctors...");
+      dispatch(fetchDoctors());
+    } else {
+      console.log(
+        "Status is not idle:",
+        status,
+        "Not dispatching fetchDoctors."
+      );
+    }
+  }, [dispatch, status]);
+
+  const handleEdit = (id: number) => {
+    console.log(`Edit doctor with ID: ${id}`);
+    // Example: navigate(`/edit-doctor/${id}`);
   };
 
-  const handleDelete = (index: number) => {
-    console.log(`Delete doctor at index ${index}`);
+  const handleDelete = (id: number) => {
+    console.log(`Delete doctor with ID: ${id}`);
+    // Here you would typically dispatch another thunk to delete the doctor:
+    // dispatch(deleteDoctor(id));
   };
 
   const handleAddNew = () => {
     navigate("/add-doctor");
   };
+
+  // Helper to get the actual array, or an empty array if not available
+  // This makes the rendering logic cleaner
+  const doctorsArray: Doctor[] = (doctors && (doctors as any).data) || [];
 
   return (
     <Box
@@ -189,13 +199,10 @@ const DoctorList: React.FC = () => {
                 <b style={{ color: "#fff" }}>Name</b>
               </TableCell>
               <TableCell>
-                <b style={{ color: "#fff" }}>Speciality</b>
+                <b style={{ color: "#fff" }}>Specialist</b>
               </TableCell>
               <TableCell>
-                <b style={{ color: "#fff" }}>From Time</b>
-              </TableCell>
-              <TableCell>
-                <b style={{ color: "#fff" }}>To Time</b>
+                <b style={{ color: "#fff" }}>Mobile</b>
               </TableCell>
               <TableCell>
                 <b style={{ color: "#fff" }}>Actions</b>
@@ -203,38 +210,67 @@ const DoctorList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {doctors.map((doctor, index) => (
-              <TableRow key={index}>
-                <TableCell>{doctor.name}</TableCell>
-                <TableCell>{doctor.speciality}</TableCell>
-                <TableCell>{doctor.fromTime}</TableCell>
-                <TableCell>{doctor.toTime}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => handleEdit(index)}
-                    sx={{
-                      "& svg": {
-                        color: theme.palette.warning.main,
-                        fontSize: { xs: "1rem", sm: "1.25rem" },
-                      },
-                    }}
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDelete(index)}
-                    sx={{
-                      "& svg": {
-                        color: theme.palette.error.main,
-                        fontSize: { xs: "1rem", sm: "1.25rem" },
-                      },
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
+            {/* Using doctorsArray which correctly points to the actual array */}
+            {doctorsArray.length > 0 ? (
+              // Scenario 1: Data is available and not empty
+              doctorsArray.map((doctor) => (
+                <TableRow key={doctor.id || Math.random()}>
+                  <TableCell>{doctor.name}</TableCell>
+                  <TableCell>{doctor.specialist || "N/A"}</TableCell>
+                  <TableCell>{doctor.mobile || "N/A"}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => handleEdit(doctor.id)}
+                      sx={{
+                        "& svg": {
+                          color: theme.palette.warning.main,
+                          fontSize: { xs: "1rem", sm: "1.25rem" },
+                        },
+                      }}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDelete(doctor.id)}
+                      sx={{
+                        "& svg": {
+                          color: theme.palette.error.main,
+                          fontSize: { xs: "1rem", sm: "1.25rem" },
+                        },
+                      }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : status === "loading" ? (
+              // Scenario 2: Data is currently loading
+              <TableRow>
+                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
+                  <CircularProgress size={24} />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Loading doctors...
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : status === "failed" ? (
+              // Scenario 3: Fetching data failed
+              <TableRow>
+                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
+                  <Alert severity="error" sx={{ justifyContent: "center" }}>
+                    Error: {error || "Failed to load doctors."}
+                  </Alert>
+                </TableCell>
+              </TableRow>
+            ) : (
+              // Scenario 4: No doctors found (status is 'succeeded' but array is empty, or 'idle' before first fetch)
+              <TableRow>
+                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
+                  No doctors found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

@@ -27,14 +27,14 @@ export const setCredentials = createAsyncThunk<
   LoginResponse,
   LoginCredentials,
   { rejectValue: string }
->("auth/loginUser", async ({ username, password }, { rejectWithValue }) => {
+>("auth/loginUser", async ({ email, password }, { rejectWithValue }) => {
   try {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
       const errorData = await response.json();

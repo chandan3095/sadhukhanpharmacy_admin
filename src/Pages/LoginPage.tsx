@@ -7,7 +7,7 @@ import { setCredentials } from "../redux/slices/authSlice";
 import bgImage from "../assets/bg.png";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      await dispatch(setCredentials({ username, password }));
+      await dispatch(setCredentials({ email, password }));
       localStorage.setItem("isLoggedIn", "true");
       navigate("/dashboard");
     } catch (error: any) {
@@ -48,8 +48,8 @@ const LoginPage = () => {
             <input
               type="text"
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
