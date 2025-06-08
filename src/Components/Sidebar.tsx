@@ -32,7 +32,7 @@ import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/store";
-import { logout } from "../redux/slices/authSlice";
+import { logout } from "../redux/apis/authSlice";
 
 interface SidebarProps {
   open: boolean;

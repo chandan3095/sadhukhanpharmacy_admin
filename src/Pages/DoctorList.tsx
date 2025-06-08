@@ -24,23 +24,17 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
-import { fetchDoctors } from "../redux/slices/DoctorSlices/doctorSlice";
-import { Doctor } from "../interfaces/DoctorInterface"; // Ensure this path is correct
+import { fetchDoctors } from "../redux/apis/DoctorSlices/doctorSlice";
+import { Doctor } from "../interfaces/DoctorInterface";
 
 const DoctorList: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  // Destructure doctors, status, and error from the Redux store
-  // 'doctors' here will be the object: { data: Doctor[] }
   const { doctors, status, error } = useSelector(
     (state: RootState) => state.doctorSlice
   );
-
-  // Keep these logs; they are valuable for understanding the state at render
-  console.log("Doctors data from Redux:", doctors);
-  console.log("Redux status:", status);
 
   useEffect(() => {
     if (status === "idle") {
@@ -57,21 +51,16 @@ const DoctorList: React.FC = () => {
 
   const handleEdit = (id: number) => {
     console.log(`Edit doctor with ID: ${id}`);
-    // Example: navigate(`/edit-doctor/${id}`);
   };
 
   const handleDelete = (id: number) => {
     console.log(`Delete doctor with ID: ${id}`);
-    // Here you would typically dispatch another thunk to delete the doctor:
-    // dispatch(deleteDoctor(id));
   };
 
   const handleAddNew = () => {
     navigate("/add-doctor");
   };
 
-  // Helper to get the actual array, or an empty array if not available
-  // This makes the rendering logic cleaner
   const doctorsArray: Doctor[] = (doctors && (doctors as any).data) || [];
 
   return (

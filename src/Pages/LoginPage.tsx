@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../redux/store";
-import { setCredentials } from "../redux/slices/authSlice";
+import { setCredentials } from "../redux/apis/authSlice";
 import bgImage from "../assets/bg.png";
 
 const LoginPage = () => {

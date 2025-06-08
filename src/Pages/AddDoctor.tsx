@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import { format } from "date-fns";
 import { Doctor } from "../interfaces/DoctorInterface";
-import { createDoctor } from "../redux/slices/DoctorSlices/doctorSlice";
+import { createDoctor } from "../redux/apis/DoctorSlices/doctorSlice";
 
 const daysList = [
   "Monday",

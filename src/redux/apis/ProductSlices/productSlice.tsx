@@ -9,8 +9,8 @@ export const fetchProducts = createAsyncThunk<
   { rejectValue: string }
 >("products/fetchProducts", async (_, { rejectWithValue }) => {
   try {
-    const doctors = await productApi.getAllProducts();
-    return doctors;
+    const products = await productApi.getAllProducts();
+    return products;
   } catch (error: any) {
     const errorMessage =
       error.response?.data?.message ||
