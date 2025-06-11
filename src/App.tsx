@@ -4,17 +4,18 @@ import Dashboard from "./Pages/Dashboard";
 import AddDoctor from "./Pages/AddDoctor";
 import AddProducts from "./Pages/AddProducts";
 import AddOffer from "./Pages/offer/AddOffer";
-import AddNotice from "./Pages/AddNotice";
+import AddNotice from "./Pages/notice/AddNotice";
 import DoctorList from "./Pages/DoctorList";
 import ProductList from "./Pages/ProductList";
 import OfferList from "./Pages/offer/OfferList";
-import NoticeList from "./Pages/NoticeList";
+import NoticeList from "./Pages/notice/NoticeList";
 import LoginPage from "./Pages/LoginPage";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 import { reHydrateAuth } from "./redux/apis/authSlice";
 import { useEffect, useState } from "react";
 import { CircularProgress, Box } from "@mui/material";
+import { ToastMessage } from "./Components/ToastMessage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useSelector(
@@ -87,6 +88,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      <ToastMessage />
       <AppRoutes isAuthLoaded={isAuthLoaded} />
     </BrowserRouter>
   );
