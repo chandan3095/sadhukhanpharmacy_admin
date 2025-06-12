@@ -25,6 +25,7 @@ import {
   ListAlt,
   ReceiptLong,
   FactCheck,
+  CalendarMonth,
 } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -44,26 +45,32 @@ const listItems = [
   { id: 2, title: "Add Doctor", path: "/add-doctor", icon: <Medication /> },
   {
     id: 3,
+    title: "Add Visiting Days",
+    path: "/add-doctor-visiting-days",
+    icon: <CalendarMonth />,
+  },
+  {
+    id: 4,
     title: "Add Product",
     path: "/add-product",
     icon: <LocalPharmacy />,
   },
-  { id: 4, title: "Add Offer", path: "/add-offer", icon: <LocalOffer /> },
+  { id: 5, title: "Add Offer", path: "/add-offer", icon: <LocalOffer /> },
   {
-    id: 5,
+    id: 6,
     title: "Add Notice",
     path: "/add-notice",
     icon: <NotificationImportant />,
   },
   {
-    id: 6,
+    id: 7,
     title: "Doctor’s List",
     path: "/doctor-list",
     icon: <FeaturedPlayList />,
   },
-  { id: 7, title: "Product’s List", path: "/product-list", icon: <ListAlt /> },
-  { id: 8, title: "Offer’s List", path: "/offer-list", icon: <ReceiptLong /> },
-  { id: 9, title: "Notice List", path: "/notice-list", icon: <FactCheck /> },
+  { id: 8, title: "Product’s List", path: "/product-list", icon: <ListAlt /> },
+  { id: 9, title: "Offer’s List", path: "/offer-list", icon: <ReceiptLong /> },
+  { id: 10, title: "Notice List", path: "/notice-list", icon: <FactCheck /> },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ open, toggleSidebar }) => {

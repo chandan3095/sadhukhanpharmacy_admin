@@ -22,24 +22,15 @@ import {
 import { Edit, Delete, Search, Add } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../redux/store";
-import { fetchDoctors } from "../redux/apis/DoctorSlices/doctorSlice";
-import { Doctor } from "../interfaces/DoctorInterface";
+import { DoctorDetails } from "../../interfaces/DoctorInterface";
 
 const DoctorList: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-
-  const { doctors, status, error } = useSelector(
-    (state: RootState) => state.doctorSlice
-  );
 
   useEffect(() => {
     if (status === "idle") {
       console.log("Status is idle. Dispatching fetchDoctors...");
-      dispatch(fetchDoctors());
     } else {
       console.log(
         "Status is not idle:",
@@ -47,7 +38,7 @@ const DoctorList: React.FC = () => {
         "Not dispatching fetchDoctors."
       );
     }
-  }, [dispatch, status]);
+  }, [status]);
 
   const handleEdit = (id: number) => {
     console.log(`Edit doctor with ID: ${id}`);
@@ -61,7 +52,7 @@ const DoctorList: React.FC = () => {
     navigate("/add-doctor");
   };
 
-  const doctorsArray: Doctor[] = (doctors && (doctors as any).data) || [];
+  const doctorsArray: DoctorDetails[] = [];
 
   return (
     <Box
@@ -206,7 +197,7 @@ const DoctorList: React.FC = () => {
                 <TableRow key={doctor.id || Math.random()}>
                   <TableCell>{doctor.name}</TableCell>
                   <TableCell>{doctor.specialist || "N/A"}</TableCell>
-                  <TableCell>{doctor.mobile || "N/A"}</TableCell>
+                  <TableCell>{doctor.degree || "N/A"}</TableCell>
                   <TableCell>
                     <IconButton
                       onClick={() => handleEdit(doctor.id)}
@@ -248,7 +239,7 @@ const DoctorList: React.FC = () => {
               <TableRow>
                 <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
                   <Alert severity="error" sx={{ justifyContent: "center" }}>
-                    Error: {error || "Failed to load doctors."}
+                    Error: {"Failed to load doctors."}
                   </Alert>
                 </TableCell>
               </TableRow>

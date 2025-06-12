@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "../../../constants/api";
-import { Doctor } from "../../../interfaces/DoctorInterface";
+import { DoctorDetails } from "../../../interfaces/DoctorInterface";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -23,25 +23,27 @@ axiosInstance.interceptors.request.use(
 );
 
 export const doctorsApi = {
-  getAllDoctors: async (): Promise<Doctor[]> => {
+  getAllDoctors: async (): Promise<DoctorDetails[]> => {
     const response = await axiosInstance.get(`/doctors`);
-    return response.data;
+    return response.data.data;
   },
 
-  getDoctorById: async (id: number): Promise<{ data: Doctor }> => {
+  getDoctorById: async (id: number): Promise<{ data: DoctorDetails }> => {
     const response = await axiosInstance.get(`/doctors/${id}`);
     return response.data;
   },
 
-  createDoctor: async (doctorData: Doctor): Promise<{ data: Doctor }> => {
+  createDoctor: async (
+    doctorData: DoctorDetails
+  ): Promise<{ data: DoctorDetails }> => {
     const response = await axiosInstance.post(`/doctors`, doctorData);
     return response.data;
   },
 
   updateDoctor: async (
     id: number,
-    doctorData: Partial<Doctor>
-  ): Promise<{ data: Doctor }> => {
+    doctorData: Partial<DoctorDetails>
+  ): Promise<{ data: DoctorDetails }> => {
     const response = await axiosInstance.put(`/doctors/${id}`, doctorData);
     return response.data;
   },

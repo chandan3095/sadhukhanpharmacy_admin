@@ -1,11 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./Layouts/Layout";
 import Dashboard from "./Pages/Dashboard";
-import AddDoctor from "./Pages/AddDoctor";
 import AddProducts from "./Pages/AddProducts";
 import AddOffer from "./Pages/offer/AddOffer";
 import AddNotice from "./Pages/notice/AddNotice";
-import DoctorList from "./Pages/DoctorList";
 import ProductList from "./Pages/ProductList";
 import OfferList from "./Pages/offer/OfferList";
 import NoticeList from "./Pages/notice/NoticeList";
@@ -16,6 +14,9 @@ import { reHydrateAuth } from "./redux/apis/authSlice";
 import { useEffect, useState } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import { ToastMessage } from "./Components/ToastMessage";
+import AddDoctor from "./Pages/doctor/AddDoctor";
+import DoctorList from "./Pages/doctor/DoctorList";
+import AddVisitingDays from "./Pages/doctor/AddVisitngDays";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useSelector(
@@ -62,6 +63,7 @@ const AppRoutes = ({ isAuthLoaded }: { isAuthLoaded: boolean }) => {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add-doctor" element={<AddDoctor />} />
+        <Route path="/add-doctor-visiting-days" element={<AddVisitingDays />} />
         <Route path="/add-product" element={<AddProducts />} />
         <Route path="/add-offer" element={<AddOffer />} />
         <Route path="/add-notice" element={<AddNotice />} />
