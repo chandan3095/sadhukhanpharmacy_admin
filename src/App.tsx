@@ -1,10 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./Layouts/Layout";
 import Dashboard from "./Pages/Dashboard";
-import AddProducts from "./Pages/AddProducts";
+import AddProducts from "./Pages/product/AddProducts";
 import AddOffer from "./Pages/offer/AddOffer";
 import AddNotice from "./Pages/notice/AddNotice";
-import ProductList from "./Pages/ProductList";
+import ProductList from "./Pages/product/ProductList";
 import OfferList from "./Pages/offer/OfferList";
 import NoticeList from "./Pages/notice/NoticeList";
 import LoginPage from "./Pages/LoginPage";

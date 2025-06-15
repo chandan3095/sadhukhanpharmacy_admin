@@ -1,28 +1,37 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Alert,
   Avatar,
   Box,
   Breadcrumbs,
   Button,
+  CircularProgress,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { Product } from "../../interfaces/ProductInterface";
+import { productApi } from "../../redux/apis/ProductApis/product_api";
+import { showSuccessToast } from "../../Components/ToastMessage";
 
 const AddProducts = () => {
   const [formData, setFormData] = useState({
     name: "",
-    basePrice: 0,
-    currentPrice: 0,
+    mrpPrice: 0,
+    Price: 0,
     image: null as File | null,
     imageUrl: "",
     description: "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -33,8 +42,64 @@ const AddProducts = () => {
       }));
     }
   };
-  const handleSubmit = () => {
-    console.log(formData);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result as string); // includes base64 with MIME type
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.mrpPrice ||
+      !formData.Price ||
+      !formData.image
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const base64Image = await fileToBase64(formData.image);
+      const productData: Product = {
+        id: 0,
+        name: formData.name,
+        description: formData.description,
+        mrp_price: formData.mrpPrice,
+        price: formData.Price,
+        image: base64Image,
+      };
+
+      const result = await productApi.createProduct(productData);
+
+      if (result && result.data) {
+        showSuccessToast("Offer added successfully!");
+        setFormData({
+          name: "",
+          image: null,
+          imageUrl: "",
+          description: "",
+          mrpPrice: 0,
+          Price: 0,
+        });
+      } else {
+        setError("Failed to add offer.");
+      }
+    } catch (error: any) {
+      setError(error.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <Box sx={{ padding: 3 }}>
@@ -66,6 +131,18 @@ const AddProducts = () => {
         <Typography color="text.secondary">Add Product</Typography>
       </Breadcrumbs>
 
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <Alert severity="error" sx={{ my: 2 }}>
+          Error: {error}
+        </Alert>
+      )}
       {/* Form Section */}
       <Box
         sx={{
@@ -113,9 +190,9 @@ const AddProducts = () => {
         <Box display="flex" gap={2} marginY={2}>
           <TextField
             label="Base Price"
-            name="baseprice"
+            name="mrpPrice"
             type="number"
-            value={formData.basePrice}
+            value={formData.mrpPrice}
             onChange={handleChange}
             fullWidth
             margin="normal"
@@ -123,9 +200,9 @@ const AddProducts = () => {
 
           <TextField
             label="Current Price"
-            name="currentprice"
+            name="Price"
             type="number"
-            value={formData.currentPrice}
+            value={formData.Price}
             onChange={handleChange}
             fullWidth
             margin="normal"
@@ -134,6 +211,7 @@ const AddProducts = () => {
 
         <TextField
           label="Description"
+          name="description"
           variant="outlined"
           value={formData.description}
           onChange={handleChange}

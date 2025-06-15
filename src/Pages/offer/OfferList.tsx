@@ -162,11 +162,20 @@ const OfferList = () => {
             ),
           }}
           sx={{
-            width: { xs: "100%", sm: "250px" },
+            width: { xs: "100%", sm: "auto" },
             "& .MuiOutlinedInput-root": {
               borderRadius: "34px",
               backgroundColor: "#fff",
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+              "& fieldset": {
+                border: "none",
+              },
+              "&:hover fieldset": {
+                border: "none",
+              },
+              "&.Mui-focused fieldset": {
+                border: "none",
+              },
             },
           }}
         />

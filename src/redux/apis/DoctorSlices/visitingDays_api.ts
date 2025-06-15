@@ -25,7 +25,7 @@ axiosInstance.interceptors.request.use(
 export const visitingDaysApi = {
   getAllVisitingDays: async (): Promise<DoctorVisitingDays[]> => {
     const response = await axiosInstance.get(`/doctor-visiting-days`);
-    return response.data;
+    return response.data.data;
   },
 
   getVisitingDaysById: async (

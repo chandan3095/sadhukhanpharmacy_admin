@@ -1,91 +1,91 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
+  Box,
+  CircularProgress,
+  Alert,
+  IconButton,
+  Button,
   Breadcrumbs,
   Link,
   TextField,
   InputAdornment,
-  Button,
-  CircularProgress, // For loading state
-  Alert, // For error state
 } from "@mui/material";
-import { Edit, Delete, Search, Add } from "@mui/icons-material";
-import { useTheme } from "@mui/material/styles";
+import { Add, Delete, Edit, ExpandMore, Search } from "@mui/icons-material";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DoctorDetails } from "../../interfaces/DoctorInterface";
+import { visitingDaysApi } from "../../redux/apis/DoctorSlices/visitingDays_api";
 
-const DoctorList: React.FC = () => {
-  const theme = useTheme();
+interface GroupedDoctor {
+  doctor: any;
+  visitingDays: any[];
+}
+
+const DoctorList = () => {
   const navigate = useNavigate();
+  const [doctorsList, setDoctorsList] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "idle") {
-      console.log("Status is idle. Dispatching fetchDoctors...");
-    } else {
-      console.log(
-        "Status is not idle:",
-        status,
-        "Not dispatching fetchDoctors."
-      );
+    fetchDoctorsList();
+  }, []);
+
+  const fetchDoctorsList = async () => {
+    try {
+      const response = await visitingDaysApi.getAllVisitingDays();
+      setDoctorsList(response);
+    } catch (error) {
+      console.error(error);
+      setError("Failed to fetch Doctors.");
+    } finally {
+      setLoading(false);
     }
-  }, [status]);
-
-  const handleEdit = (id: number) => {
-    console.log(`Edit doctor with ID: ${id}`);
   };
 
-  const handleDelete = (id: number) => {
-    console.log(`Delete doctor with ID: ${id}`);
-  };
+  const groupByDoctor = doctorsList.reduce<Record<string, GroupedDoctor>>(
+    (acc, item) => {
+      const docId = item.doctor.id;
+      if (!acc[docId]) {
+        acc[docId] = {
+          doctor: item.doctor,
+          visitingDays: [],
+        };
+      }
+      acc[docId].visitingDays.push({
+        id: item.id,
+        day: item.day,
+        start_time: item.start_time,
+        end_time: item.end_time,
+        is_active: item.is_active,
+      });
+      return acc;
+    },
+    {}
+  );
 
   const handleAddNew = () => {
     navigate("/add-doctor");
   };
 
-  const doctorsArray: DoctorDetails[] = [];
+  const handleEdit = (id: number) => {
+    console.log(`Edit visiting day ID: ${id}`);
+  };
+
+  const handleDelete = (id: number) => {
+    console.log(`Delete visiting day ID: ${id}`);
+  };
 
   return (
-    <Box
-      sx={{
-        padding: 3,
-        [theme.breakpoints.down("sm")]: {
-          padding: 2,
-        },
-      }}
-    >
-      {/* Header Section */}
-      <Typography
-        variant="h5"
-        fontWeight="bold"
-        gutterBottom
-        color="secondary"
-        sx={{
-          fontSize: {
-            xs: "1.5rem",
-            sm: "2rem",
-            md: "2.25rem",
-          },
-        }}
-      >
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" fontWeight="bold" gutterBottom color="secondary">
         Doctor List
       </Typography>
 
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        separator="›"
-        aria-label="breadcrumb"
-        sx={{ mb: 2, fontSize: { xs: "0.8rem", sm: "1rem" } }}
-      >
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
         <Link underline="hover" color="inherit" href="/">
           Home
         </Link>
@@ -95,22 +95,19 @@ const DoctorList: React.FC = () => {
         <Typography color="text.secondary">Doctor List</Typography>
       </Breadcrumbs>
 
-      {/* Search and Add Button */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
           mb: 2,
-          flexWrap: "wrap",
           gap: 2,
+          flexWrap: "wrap",
         }}
       >
-        {/* Search Bar */}
         <TextField
           variant="outlined"
-          size="small"
           placeholder="Search..."
+          size="small"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -124,136 +121,156 @@ const DoctorList: React.FC = () => {
               borderRadius: "34px",
               backgroundColor: "#fff",
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              "& fieldset": {
-                border: "none",
-              },
-              "&:hover fieldset": {
-                border: "none",
-              },
-              "&.Mui-focused fieldset": {
-                border: "none",
-              },
+              "& fieldset": { border: "none" },
+              "&:hover fieldset": { border: "none" },
+              "&.Mui-focused fieldset": { border: "none" },
             },
           }}
         />
-
-        {/* Add New Button */}
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={handleAddNew}
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: "#fff",
-            whiteSpace: "nowrap",
-            "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-            },
-            fontSize: {
-              xs: "0.75rem",
-              sm: "0.875rem",
-            },
-            padding: {
-              xs: "5px 10px",
-              sm: "6px 16px",
-            },
-          }}
-        >
+        <Button variant="contained" startIcon={<Add />} onClick={handleAddNew}>
           Add New
         </Button>
       </Box>
 
-      {/* Doctor Table */}
-      <TableContainer
-        component={Paper}
-        sx={{
-          width: "100%",
-          overflowX: "auto", // Enable horizontal scrolling
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-        }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-              <TableCell>
-                <b style={{ color: "#fff" }}>Name</b>
-              </TableCell>
-              <TableCell>
-                <b style={{ color: "#fff" }}>Specialist</b>
-              </TableCell>
-              <TableCell>
-                <b style={{ color: "#fff" }}>Mobile</b>
-              </TableCell>
-              <TableCell>
-                <b style={{ color: "#fff" }}>Actions</b>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {/* Using doctorsArray which correctly points to the actual array */}
-            {doctorsArray.length > 0 ? (
-              // Scenario 1: Data is available and not empty
-              doctorsArray.map((doctor) => (
-                <TableRow key={doctor.id || Math.random()}>
-                  <TableCell>{doctor.name}</TableCell>
-                  <TableCell>{doctor.specialist || "N/A"}</TableCell>
-                  <TableCell>{doctor.degree || "N/A"}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={() => handleEdit(doctor.id)}
-                      sx={{
-                        "& svg": {
-                          color: theme.palette.warning.main,
-                          fontSize: { xs: "1rem", sm: "1.25rem" },
-                        },
-                      }}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDelete(doctor.id)}
-                      sx={{
-                        "& svg": {
-                          color: theme.palette.error.main,
-                          fontSize: { xs: "1rem", sm: "1.25rem" },
-                        },
-                      }}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : status === "loading" ? (
-              // Scenario 2: Data is currently loading
-              <TableRow>
-                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
-                  <CircularProgress size={24} />
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Loading doctors...
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : status === "failed" ? (
-              // Scenario 3: Fetching data failed
-              <TableRow>
-                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
-                  <Alert severity="error" sx={{ justifyContent: "center" }}>
-                    Error: {"Failed to load doctors."}
-                  </Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              // Scenario 4: No doctors found (status is 'succeeded' but array is empty, or 'idle' before first fetch)
-              <TableRow>
-                <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
-                  No doctors found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {loading ? (
+        <Box
+          sx={{ display: "flex", justifyContent: "center", height: "200px" }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        (
+          Object.values(groupByDoctor) as { doctor: any; visitingDays: any[] }[]
+        ).map(({ doctor, visitingDays }) => (
+          <Accordion
+            key={doctor.id}
+            sx={{
+              mb: 2,
+              borderRadius: 2,
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.05)",
+              "&::before": { display: "none" },
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            {/* Accordion Header */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                px: 2,
+                py: 1.5,
+                backgroundColor: "white",
+                color: "#2eb774",
+                borderTopLeftRadius: 10,
+                borderTopRightRadius: 10,
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMore sx={{ fontSize: "1.5rem" }} />}
+                sx={{
+                  padding: 0,
+                  margin: 0,
+                  minHeight: "unset",
+                  "& .MuiAccordionSummary-content": {
+                    margin: 0,
+                  },
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="bold"
+                  fontSize={{ xs: "0.95rem", sm: "1rem" }}
+                >
+                  {doctor.name} — {doctor.degree} ({doctor.specialist || "N/A"})
+                </Typography>
+              </AccordionSummary>
+
+              {/* Control Buttons outside of the button area */}
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(doctor.id);
+                  }}
+                  sx={{ p: 1.2 }}
+                >
+                  <Edit
+                    fontSize="small"
+                    sx={{ fontSize: "1.3rem" }}
+                    color="warning"
+                  />
+                </IconButton>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(doctor.id);
+                  }}
+                  sx={{ p: 1.2 }}
+                >
+                  <Delete
+                    fontSize="small"
+                    sx={{ fontSize: "1.3rem" }}
+                    color="error"
+                  />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* Accordion Details */}
+            <AccordionDetails sx={{ backgroundColor: "#fff", borderRadius: 2 }}>
+              {visitingDays.length > 0 ? (
+                visitingDays.map((day) => (
+                  <Box
+                    key={day.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1,
+                      px: 1,
+                      py: 0.8,
+                      borderBottom: "1px solid #eee",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography fontSize={{ xs: "0.9rem", sm: "1rem" }}>
+                      <b>{day.day}</b>: {day.start_time} - {day.end_time}
+                    </Typography>
+                    <Box>
+                      <IconButton
+                        onClick={() => handleEdit(day.id)}
+                        sx={{ p: 1.2 }}
+                      >
+                        <Edit
+                          fontSize="small"
+                          sx={{ fontSize: "1.3rem" }}
+                          color="warning"
+                        />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDelete(day.id)}
+                        sx={{ p: 1.2 }}
+                      >
+                        <Delete
+                          fontSize="small"
+                          sx={{ fontSize: "1.3rem" }}
+                          color="error"
+                        />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography>No visiting days added.</Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
+        ))
+      )}
     </Box>
   );
 };

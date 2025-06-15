@@ -13,9 +13,14 @@ export interface DoctorVisitingDays {
   end_time?: string;
 }
 
-export interface Doctor {
-  doctorDetails: DoctorDetails;
-  visitingDays: DoctorVisitingDays;
-  created_at: string;
-  updated_at: string;
-}
+// export interface DoctorList {
+//   id: number;
+//   doctor_id: number;
+//   day: string;
+//   start_time: string;
+//   end_time: string;
+//   is_active: number;
+//   created_at: string;
+//   updated_at: string;
+//   doctor: DoctorDetails;
+// }

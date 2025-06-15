@@ -3,8 +3,6 @@ export interface Product {
   name: string;
   description: string;
   mrp_price: number;
-  base_price: number;
-  from_date_time: string;
-  to_date_time: string;
+  price: number;
   image: string;
 }
