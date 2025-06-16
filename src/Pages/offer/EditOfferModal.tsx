@@ -12,9 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { useDispatch } from "react-redux";
 import { Offer } from "../../interfaces/OfferInterface";
-import { AppDispatch } from "../../redux/store";
 import { offerApi } from "../../redux/apis/OfferApis/offer_api";
 
 interface EditOfferModalProps {
@@ -30,7 +28,6 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({
   offer,
   onSuccess,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     title: "",
     image: null as File | null,

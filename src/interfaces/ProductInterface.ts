@@ -4,5 +4,10 @@ export interface Product {
   description: string;
   mrp_price: number;
   price: number;
-  image: string;
+  image?: string;
+}
+
+export interface ProductResponse {
+  product: Product;
+  image_url: string;
 }

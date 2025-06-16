@@ -25,11 +25,11 @@ axiosInstance.interceptors.request.use(
 export const productApi = {
   getAllProducts: async (): Promise<Product[]> => {
     const response = await axiosInstance.get(`/products`);
-    return response.data;
+    return response.data.data;
   },
 
   getProductById: async (id: number): Promise<{ data: Product }> => {
-    const response = await axiosInstance.get(`/product/${id}`);
+    const response = await axiosInstance.get(`/products/${id}`);
     return response.data;
   },
 
@@ -42,12 +42,12 @@ export const productApi = {
     id: number,
     productData: Product
   ): Promise<{ data: Product }> => {
-    const response = await axiosInstance.put(`/product/${id}`, productData);
-    return response.data;
+    const response = await axiosInstance.put(`/products/${id}`, productData);
+    return response.data.data;
   },
 
   deleteProduct: async (id: number): Promise<void> => {
-    await axiosInstance.delete(`/product/${id}`);
+    await axiosInstance.delete(`/products/${id}`);
     return;
   },
 };
