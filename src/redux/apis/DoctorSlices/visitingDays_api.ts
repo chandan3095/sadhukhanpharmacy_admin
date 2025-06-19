@@ -46,7 +46,7 @@ export const visitingDaysApi = {
   },
 
   updateVisitingDays: async (
-    id: number,
+    id: string,
     doctorData: Partial<DoctorVisitingDays>
   ): Promise<{ data: DoctorVisitingDays }> => {
     const response = await axiosInstance.put(

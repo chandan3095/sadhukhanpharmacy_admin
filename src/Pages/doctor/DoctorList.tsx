@@ -18,6 +18,13 @@ import { Add, Delete, Edit, ExpandMore, Search } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { visitingDaysApi } from "../../redux/apis/DoctorSlices/visitingDays_api";
+import EditDoctorModal from "./EditDoctorModal";
+import {
+  DoctorDetails,
+  DoctorVisitingDays,
+} from "../../interfaces/DoctorInterface";
+import EditVisitingDayModal from "./EditVisitingDayModal";
+import DeleteVisitingDayModal from "./DeleteVisitingDayModal";
 
 interface GroupedDoctor {
   doctor: any;
@@ -29,6 +36,14 @@ const DoctorList = () => {
   const [doctorsList, setDoctorsList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editVisitingModalOpen, setEditVisitingModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorDetails | null>(
+    null
+  );
+  const [selectedVisitingday, setSelectedVisitingday] =
+    useState<DoctorVisitingDays | null>(null);
 
   useEffect(() => {
     fetchDoctorsList();
@@ -67,16 +82,73 @@ const DoctorList = () => {
     {}
   );
 
+  const handleEdit = (id: number) => {
+    const group = Object.values(groupByDoctor).find((group) =>
+      group.visitingDays.some((day) => day.id === id)
+    );
+
+    const visitingDay = group?.visitingDays.find((day) => day.id === id);
+
+    if (visitingDay && group) {
+      setSelectedVisitingday({
+        ...visitingDay,
+        doctor_name: group.doctor.name,
+      });
+      setEditVisitingModalOpen(true);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    const group = Object.values(groupByDoctor).find((group) =>
+      group.visitingDays.some((day) => day.id === id)
+    );
+
+    const visitingDay = group?.visitingDays.find((day) => day.id === id);
+
+    if (visitingDay && group) {
+      setSelectedVisitingday({
+        ...visitingDay,
+        doctor_name: group.doctor.name,
+      });
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async (id: number) => {
+    try {
+      await visitingDaysApi.deleteVisitingDays(id);
+      fetchDoctorsList();
+    } catch (error) {
+      console.error("Failed to delete visiting day:", error);
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedVisitingday(null);
+    }
+  };
+
   const handleAddNew = () => {
     navigate("/add-doctor");
   };
 
-  const handleEdit = (id: number) => {
-    console.log(`Edit visiting day ID: ${id}`);
+  const handleDoctorEdit = (doctorId: number) => {
+    const doctorToEdit = Object.values(groupByDoctor).find(
+      (d) => d.doctor.id === doctorId
+    )?.doctor;
+
+    if (doctorToEdit) {
+      setSelectedDoctor(doctorToEdit);
+      setEditModalOpen(true);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    console.log(`Delete visiting day ID: ${id}`);
+  const handleModalClose = (type: "doctor" | "visitingDay") => {
+    if (type === "doctor") {
+      setEditModalOpen(false);
+      setSelectedDoctor(null);
+    } else if (type === "visitingDay") {
+      setEditVisitingModalOpen(false);
+      setSelectedVisitingday(null);
+    }
   };
 
   return (
@@ -161,7 +233,7 @@ const DoctorList = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 px: 2,
-                py: 1.5,
+                py: 1,
                 backgroundColor: "white",
                 color: "#2eb774",
                 borderTopLeftRadius: 10,
@@ -187,40 +259,32 @@ const DoctorList = () => {
                   {doctor.name} — {doctor.degree} ({doctor.specialist || "N/A"})
                 </Typography>
               </AccordionSummary>
-
-              {/* Control Buttons outside of the button area */}
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(doctor.id);
-                  }}
-                  sx={{ p: 1.2 }}
-                >
-                  <Edit
-                    fontSize="small"
-                    sx={{ fontSize: "1.3rem" }}
-                    color="warning"
-                  />
-                </IconButton>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(doctor.id);
-                  }}
-                  sx={{ p: 1.2 }}
-                >
-                  <Delete
-                    fontSize="small"
-                    sx={{ fontSize: "1.3rem" }}
-                    color="error"
-                  />
-                </IconButton>
-              </Box>
             </Box>
 
             {/* Accordion Details */}
             <AccordionDetails sx={{ backgroundColor: "#fff", borderRadius: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+                <IconButton
+                  onClick={() => handleDoctorEdit(doctor.id)}
+                  sx={{
+                    // p: 1.2,
+                    fontSize: "1rem",
+                    backgroundColor: "#2eb774",
+                    color: "#fff",
+                    borderRadius: "10px",
+                    "&:hover": {
+                      backgroundColor: "#2eb774",
+                    },
+                  }}
+                >
+                  <Edit
+                    fontSize="small"
+                    sx={{ fontSize: "1.3rem", marginRight: "0.2rem" }}
+                  />
+                  Edit Doctor
+                </IconButton>
+              </Box>
+
               {visitingDays.length > 0 ? (
                 visitingDays.map((day) => (
                   <Box
@@ -238,7 +302,8 @@ const DoctorList = () => {
                     }}
                   >
                     <Typography fontSize={{ xs: "0.9rem", sm: "1rem" }}>
-                      <b>{day.day}</b>: {day.start_time} - {day.end_time}
+                      <b style={{ color: "#2eb774" }}>{day.day}</b> :{" "}
+                      {day.start_time} - {day.end_time}
                     </Typography>
                     <Box>
                       <IconButton
@@ -271,6 +336,36 @@ const DoctorList = () => {
           </Accordion>
         ))
       )}
+
+      <EditDoctorModal
+        open={editModalOpen}
+        doctor={selectedDoctor}
+        onClose={() => handleModalClose("doctor")}
+        onSave={() => {
+          handleModalClose("doctor");
+          fetchDoctorsList();
+        }}
+      />
+
+      <EditVisitingDayModal
+        open={editVisitingModalOpen}
+        visitingDay={selectedVisitingday}
+        onClose={() => handleModalClose("visitingDay")}
+        onUpdated={() => {
+          handleModalClose("visitingDay");
+          fetchDoctorsList();
+        }}
+      />
+
+      <DeleteVisitingDayModal
+        open={deleteModalOpen}
+        visitingDay={selectedVisitingday}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedVisitingday(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </Box>
   );
 };

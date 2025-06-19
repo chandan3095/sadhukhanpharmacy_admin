@@ -2,12 +2,13 @@ export interface DoctorDetails {
   id: number;
   name: string;
   degree: string;
-  specialist: string | null;
+  specialist: string;
   image?: string | null;
 }
 
 export interface DoctorVisitingDays {
-  doctor_id: string;
+  doctor_name?: string;
+  id: string;
   day?: string;
   start_time?: string;
   end_time?: string;
