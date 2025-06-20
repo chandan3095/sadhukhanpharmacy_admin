@@ -83,7 +83,7 @@ const AddProducts = () => {
       const result = await productApi.createProduct(productData);
 
       if (result && result.data) {
-        showSuccessToast("Offer added successfully!");
+        showSuccessToast("Product added successfully!");
         setFormData({
           name: "",
           image: null,
@@ -93,7 +93,7 @@ const AddProducts = () => {
           Price: 0,
         });
       } else {
-        setError("Failed to add offer.");
+        setError("Failed to add Product.");
       }
     } catch (error: any) {
       setError(error.message || "An unexpected error occurred.");
