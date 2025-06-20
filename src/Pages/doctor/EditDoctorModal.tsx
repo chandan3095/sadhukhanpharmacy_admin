@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { DoctorDetails } from "../../interfaces/DoctorInterface";
-import { doctorsApi } from "../../redux/apis/DoctorSlices/doctor_api";
+import { doctorsApi } from "../../redux/apis/DoctorAPis/doctor_api";
 import {
   showSuccessToast,
   showErrorToast,

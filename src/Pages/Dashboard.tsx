@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Card,
   CardContent,
@@ -9,15 +10,66 @@ import {
   Link,
   useTheme,
 } from "@mui/material";
-import { useEffect } from "react";
-import { API_BASE_URL } from "../constants/api";
+import { useEffect, useState } from "react";
+import { DoctorDetails } from "../interfaces/DoctorInterface";
+import { Notice } from "../interfaces/NoticeInterface";
+import { Offer } from "../interfaces/OfferInterface";
+import { Product } from "../interfaces/ProductInterface";
+import { doctorsApi } from "../redux/apis/DoctorAPis/doctor_api";
+import { noticeApi } from "../redux/apis/NoticeApis/notice_api";
+import { offerApi } from "../redux/apis/OfferApis/offer_api";
+import { productApi } from "../redux/apis/ProductApis/product_api";
+import { visitingDaysApi } from "../redux/apis/DoctorAPis/visitingDays_api";
+import { parse, format, isValid } from "date-fns";
 
 const Dashboard = () => {
   const theme = useTheme();
+  const [doctors, setDoctors] = useState<DoctorDetails[]>([]);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedDay, setSelectedDay] = useState("monday");
+  const [doctorsByDay, setDoctorsByDay] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log(API_BASE_URL);
+    const fetchAll = async () => {
+      const doctorRes = await doctorsApi.getAllDoctors();
+      setDoctors(doctorRes);
+
+      const noticeRes = await noticeApi.getAllNotices();
+      setNotices(noticeRes.data);
+
+      const offerRes = await offerApi.getAllOffers();
+      setOffers(offerRes.data);
+
+      const productRes = await productApi.getAllProducts();
+      setProducts(productRes);
+
+      fetchDoctorsByDay(selectedDay);
+    };
+
+    fetchAll();
   }, []);
+
+  const fetchDoctorsByDay = async (day: string) => {
+    const response = await visitingDaysApi.getVisitingDaysByDay(day);
+    console.log(response);
+
+    setDoctorsByDay(response.data);
+  };
+
+  const formatTime = (time: string) => {
+    try {
+      if (!time || !time.includes(":")) return time;
+
+      const parsed = parse(time, "HH:mm:ss", new Date());
+
+      return isValid(parsed) ? format(parsed, "hh:mm a") : time;
+    } catch (err) {
+      console.error("Time parsing error:", err);
+      return time;
+    }
+  };
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -67,7 +119,12 @@ const Dashboard = () => {
           Doctor Schedule :
         </Typography>
         <Select
-          defaultValue="Monday"
+          value={selectedDay}
+          onChange={(e) => {
+            const day = e.target.value;
+            setSelectedDay(day);
+            fetchDoctorsByDay(day);
+          }}
           size="small"
           sx={{
             minWidth: 120,
@@ -88,15 +145,15 @@ const Dashboard = () => {
             },
           }}
         >
-          <MenuItem value="Sunday">Sunday</MenuItem>
-          <MenuItem value="Monday">Monday</MenuItem>
-          <MenuItem value="Tuesday" disabled>
+          <MenuItem value="sunday">Sunday</MenuItem>
+          <MenuItem value="monday">Monday</MenuItem>
+          <MenuItem value="tuesday" disabled>
             Tuesday
           </MenuItem>
-          <MenuItem value="Wednesday">Wednesday</MenuItem>
-          <MenuItem value="Thursday">Thursday</MenuItem>
-          <MenuItem value="Friday">Friday</MenuItem>
-          <MenuItem value="Saturday">Saturday</MenuItem>
+          <MenuItem value="wednesday">Wednesday</MenuItem>
+          <MenuItem value="thursday">Thursday</MenuItem>
+          <MenuItem value="friday">Friday</MenuItem>
+          <MenuItem value="saturday">Saturday</MenuItem>
         </Select>
       </Box>
 
@@ -110,71 +167,80 @@ const Dashboard = () => {
         }}
         gap={2}
       >
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Card
-            key={index}
-            sx={{
-              boxShadow: 2,
-              borderRadius: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-            }}
-          >
-            <CardContent
+        {doctorsByDay.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No doctors available for {selectedDay}
+          </Typography>
+        ) : (
+          doctorsByDay.map((doc, index) => (
+            <Card
+              key={index}
               sx={{
+                boxShadow: 2,
+                borderRadius: 2,
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
-                textAlign: "center",
-                gap: "10px",
+                justifyContent: "center",
+                height: "100%",
               }}
             >
-              <Typography
-                variant="h6"
-                color="primary"
+              <CardContent
                 sx={{
-                  fontSize: {
-                    xs: "1rem",
-                    sm: "1.125rem",
-                    md: "1.25rem",
-                  },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "10px",
                 }}
               >
-                Dr. Debjyoti Sadhukhan
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  fontSize: {
-                    xs: "0.75rem",
-                    sm: "0.875rem",
-                    md: "1rem",
-                  },
-                }}
-              >
-                MBBS, M.Pharma, B-Pharma, PHD, MS
-              </Typography>
-              <Typography
-                variant="body2"
-                fontWeight="bold"
-                color="secondary"
-                mt={1}
-                sx={{
-                  fontSize: {
-                    xs: "0.75rem",
-                    sm: "0.875rem",
-                    md: "1rem",
-                  },
-                }}
-              >
-                Time: 08:30AM - 09:30AM
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  sx={{
+                    fontSize: {
+                      xs: "1rem",
+                      sm: "1.125rem",
+                      md: "1.25rem",
+                    },
+                    fontWeight: 600,
+                  }}
+                >
+                  {doc.doctor.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.875rem",
+                      md: "1rem",
+                    },
+                    fontWeight: 600,
+                  }}
+                >
+                  {doc.doctor.degree}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="secondary"
+                  mt={1}
+                  sx={{
+                    fontSize: {
+                      xs: "0.75rem",
+                      sm: "0.875rem",
+                      md: "1rem",
+                    },
+                  }}
+                >
+                  Time: {formatTime(doc.start_time)} -{" "}
+                  {formatTime(doc.end_time)}
+                </Typography>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </Box>
 
       {/* Summary Cards */}
@@ -189,10 +255,10 @@ const Dashboard = () => {
         mt={4}
       >
         {[
-          { label: "DOCTOR", value: 12 },
-          { label: "PRODUCT", value: 20 },
-          { label: "OFFER", value: 3 },
-          { label: "NOTICE", value: 2 },
+          { label: "DOCTOR", value: doctors.length },
+          { label: "PRODUCT", value: products.length },
+          { label: "OFFER", value: offers.length },
+          { label: "NOTICE", value: notices.length },
         ].map((item) => (
           <Card
             key={item.label}

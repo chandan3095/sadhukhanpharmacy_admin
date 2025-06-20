@@ -28,10 +28,12 @@ export const visitingDaysApi = {
     return response.data.data;
   },
 
-  getVisitingDaysById: async (
-    id: number
-  ): Promise<{ data: DoctorVisitingDays }> => {
-    const response = await axiosInstance.get(`/doctor-visiting-days/${id}`);
+  getVisitingDaysByDay: async (
+    day: string
+  ): Promise<{ data: DoctorVisitingDays[] }> => {
+    const response = await axiosInstance.get(
+      `/doctor-visiting-days/?day=${day}`
+    );
     return response.data;
   },
 

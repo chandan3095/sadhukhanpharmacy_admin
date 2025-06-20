@@ -17,7 +17,7 @@ import {
 import { Add, Delete, Edit, ExpandMore, Search } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { visitingDaysApi } from "../../redux/apis/DoctorSlices/visitingDays_api";
+import { visitingDaysApi } from "../../redux/apis/DoctorAPis/visitingDays_api";
 import EditDoctorModal from "./EditDoctorModal";
 import {
   DoctorDetails,
@@ -25,6 +25,7 @@ import {
 } from "../../interfaces/DoctorInterface";
 import EditVisitingDayModal from "./EditVisitingDayModal";
 import DeleteVisitingDayModal from "./DeleteVisitingDayModal";
+import { parse, format, isValid } from "date-fns";
 
 interface GroupedDoctor {
   doctor: any;
@@ -148,6 +149,20 @@ const DoctorList = () => {
     } else if (type === "visitingDay") {
       setEditVisitingModalOpen(false);
       setSelectedVisitingday(null);
+    }
+  };
+
+  const formatTime = (time: string) => {
+    try {
+      if (!time || !time.includes(":")) return time;
+
+      // Use correct format string for time like "13:00:00"
+      const parsed = parse(time, "HH:mm:ss", new Date());
+
+      return isValid(parsed) ? format(parsed, "hh:mm a") : time;
+    } catch (err) {
+      console.error("Time parsing error:", err);
+      return time;
     }
   };
 
@@ -303,7 +318,7 @@ const DoctorList = () => {
                   >
                     <Typography fontSize={{ xs: "0.9rem", sm: "1rem" }}>
                       <b style={{ color: "#2eb774" }}>{day.day}</b> :{" "}
-                      {day.start_time} - {day.end_time}
+                      {formatTime(day.start_time)} - {formatTime(day.end_time)}
                     </Typography>
                     <Box>
                       <IconButton

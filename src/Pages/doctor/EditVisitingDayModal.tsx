@@ -23,8 +23,8 @@ import {
   DoctorDetails,
   DoctorVisitingDays,
 } from "../../interfaces/DoctorInterface";
-import { doctorsApi } from "../../redux/apis/DoctorSlices/doctor_api";
-import { visitingDaysApi } from "../../redux/apis/DoctorSlices/visitingDays_api";
+import { doctorsApi } from "../../redux/apis/DoctorAPis/doctor_api";
+import { visitingDaysApi } from "../../redux/apis/DoctorAPis/visitingDays_api";
 import {
   showErrorToast,
   showSuccessToast,

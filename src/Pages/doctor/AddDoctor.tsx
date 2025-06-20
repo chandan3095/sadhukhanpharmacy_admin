@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { doctorsApi } from "../../redux/apis/DoctorSlices/doctor_api";
+import { doctorsApi } from "../../redux/apis/DoctorAPis/doctor_api";
 import { DoctorDetails } from "../../interfaces/DoctorInterface";
 import {
   showErrorToast,
@@ -57,19 +57,34 @@ const AddDoctor = () => {
 
     try {
       setStatus("loading");
-      // TODO: Handle actual image upload to server and get URL
-      // let uploadedImageUrl: string | null = null;
+
+      let base64Image = "";
 
       if (formData.image) {
-        console.log("Simulating image upload for:", formData.image.name);
-        // uploadedImageUrl = formData.imageUrl || null;
+        const file = formData.image;
+        const reader = new FileReader();
+
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => {
+            if (reader.result) {
+              resolve(reader.result.toString());
+            } else {
+              reject("Failed to convert image.");
+            }
+          };
+          reader.onerror = reject;
+        });
+
+        reader.readAsDataURL(file);
+        base64Image = await base64Promise;
       }
 
-      const doctorData: DoctorDetails = {
+      const doctorData: DoctorDetails & { profile_picture?: string } = {
         id: 0,
         name: formData.name,
         degree: formData.degree,
         specialist: formData.specialist,
+        ...(base64Image && { profile_picture: base64Image }),
       };
 
       await doctorsApi.createDoctor(doctorData);

@@ -270,49 +270,57 @@ const ProductList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProducts.map((productData, index) => (
-                <TableRow key={index}>
-                  <TableCell>{productData.product.name}</TableCell>
-                  <TableCell>₹{productData.product.mrp_price}</TableCell>
-                  <TableCell>₹{productData.product.price}</TableCell>
-                  <TableCell>
-                    <img
-                      src={productData.image_url}
-                      alt={productData.product.name}
-                      style={{
-                        width: "100px",
-                        height: "auto",
-                        maxWidth: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={() => handleEdit(index)}
-                      sx={{
-                        "& svg": {
-                          color: theme.palette.warning.main,
-                          fontSize: { xs: "1rem", sm: "1.25rem" },
-                        },
-                      }}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDelete(index)}
-                      sx={{
-                        "& svg": {
-                          color: theme.palette.error.main,
-                          fontSize: { xs: "1rem", sm: "1.25rem" },
-                        },
-                      }}
-                    >
-                      <Delete />
-                    </IconButton>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    No products found.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredProducts.map((productData, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{productData.product.name}</TableCell>
+                    <TableCell>₹{productData.product.mrp_price}</TableCell>
+                    <TableCell>₹{productData.product.price}</TableCell>
+                    <TableCell>
+                      <img
+                        src={productData.image_url}
+                        alt={productData.product.name}
+                        style={{
+                          width: "100px",
+                          height: "auto",
+                          maxWidth: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={() => handleEdit(index)}
+                        sx={{
+                          "& svg": {
+                            color: theme.palette.warning.main,
+                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                          },
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDelete(index)}
+                        sx={{
+                          "& svg": {
+                            color: theme.palette.error.main,
+                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                          },
+                        }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
