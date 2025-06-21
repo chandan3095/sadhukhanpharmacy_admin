@@ -23,8 +23,8 @@ const DeleteVisitingDayModal: React.FC<DeleteVisitingDayModalProps> = ({
   visitingDay,
 }) => {
   const handleDelete = () => {
-    if (visitingDay?.id != null) {
-      onConfirm(Number(visitingDay.id));
+    if (visitingDay?.doctor_id != null) {
+      onConfirm(Number(visitingDay.doctor_id));
     }
     onClose();
   };

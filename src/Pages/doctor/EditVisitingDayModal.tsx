@@ -72,13 +72,13 @@ const EditVisitingDayModal: React.FC<EditVisitingDayModalProps> = ({
 
   useEffect(() => {
     if (visitingDay && doctorsList.length > 0) {
-      const { doctor_name, id, day, start_time, end_time } = visitingDay;
+      const { doctor_name, doctor_id, day, start_time, end_time } = visitingDay;
       console.log(visitingDay);
       console.log(doctor_name);
 
       setFormData({
         name: doctor_name ?? "",
-        doctorId: Number(id),
+        doctorId: Number(doctor_id),
         day: day ?? "",
         fromTime: start_time ? new Date(`1970-01-01T${start_time}`) : null,
         toTime: end_time ? new Date(`1970-01-01T${end_time}`) : null,
@@ -118,7 +118,10 @@ const EditVisitingDayModal: React.FC<EditVisitingDayModalProps> = ({
         end_time: formData.toTime ? format(formData.toTime, "HH:mm") : "",
       };
 
-      await visitingDaysApi.updateVisitingDays(visitingDay.id, updateData);
+      await visitingDaysApi.updateVisitingDays(
+        visitingDay.doctor_id,
+        updateData
+      );
       setStatus("success");
       showSuccessToast("Visiting day updated successfully");
       onUpdated();
