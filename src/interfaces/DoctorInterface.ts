@@ -8,7 +8,7 @@ export interface DoctorDetails {
 
 export interface DoctorVisitingDays {
   doctor_name?: string;
-  id: string;
+  doctor_id: string;
   day?: string;
   start_time?: string;
   end_time?: string;
